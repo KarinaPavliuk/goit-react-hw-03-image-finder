@@ -24,7 +24,10 @@ export class App extends Component {
   };
 
   componentDidUpdate(_, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
+    if (
+      prevState.searchQuery !== this.state.searchQuery ||
+      prevState.page !== this.state.page
+    ) {
       this.fetchImages();
     }
   }
@@ -52,12 +55,9 @@ export class App extends Component {
   };
 
   handleLoadBtnClick = () => {
-    this.setState(
-      prevState => ({
-        page: prevState.page + 1,
-      }),
-      this.fetchImages
-    );
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   handleImgClick = largeImageURL => {
