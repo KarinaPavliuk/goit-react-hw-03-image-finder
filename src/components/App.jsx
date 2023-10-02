@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { RotatingLines } from 'react-loader-spinner';
 
 import { Searchbar } from './Searchbar/Searchbar';
@@ -11,97 +11,72 @@ import { getAllImages } from '../API/images';
 
 import css from './App.module.css';
 
-export class App extends Component {
-  state = {
-    images: [],
-    error: '',
-    isLoading: false,
-    isShowImages: false,
-    searchQuery: '',
-    page: 1,
-    show: false,
-    modalUrl: '',
-  };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [show, setShow] = useState(false);
+  const [modalUrl, setModalUrl] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.searchQuery !== this.state.searchQuery ||
-      prevState.page !== this.state.page
-    ) {
-      this.fetchImages();
-    }
-  }
+  useEffect(() => {
+    searchQuery && fetchImages();
+  }, [searchQuery, page]);
 
-  fetchImages = async () => {
-    const { searchQuery, page } = this.state;
-
+  const fetchImages = async () => {
     try {
-      this.setState({ isLoading: true });
+      setIsLoading(true);
       const data = await getAllImages(searchQuery, page);
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...data.hits],
-        };
-      });
+      setImages([...images, ...data.hits]);
     } catch ({ message }) {
-      this.setState({ error: message });
+      setError(message);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
-  handleSetSearchQuery = value => {
-    this.setState({ images: [], searchQuery: value, page: 1 });
+  const handleSetSearchQuery = value => {
+    setImages([]);
+    setSearchQuery(value);
+    setPage(1);
   };
 
-  handleLoadBtnClick = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const handleLoadBtnClick = () => {
+    setPage(page + 1);
   };
 
-  handleImgClick = largeImageURL => {
-    this.setState({
-      show: true,
-      modalUrl: largeImageURL,
-    });
+  const handleImgClick = largeImageURL => {
+    setShow(true);
+    setModalUrl(largeImageURL);
   };
 
-  closeModal = () => {
-    this.setState({
-      show: false,
-    });
+  const closeModal = () => {
+    setShow(false);
   };
 
-  render() {
-    const { images, error, isLoading, show, modalUrl } = this.state;
-    const { handleSetSearchQuery, handleLoadBtnClick, handleImgClick } = this;
-
-    return (
-      <div className={css.app}>
-        <Searchbar submit={handleSetSearchQuery} />
-        {images.length > 0 && (
-          <ImageGallery>
-            <ImageGalleryItem images={images} handleClick={handleImgClick} />
-          </ImageGallery>
-        )}
-        {error && <p>{error}</p>}
-        {isLoading && (
-          <Loader>
-            <RotatingLines
-              strokeColor="#3f51b5"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="96"
-              visible={true}
-            />
-          </Loader>
-        )}
-        {images.length > 0 && (
-          <Button handleClick={handleLoadBtnClick}></Button>
-        )}
-        {show && <Modal modalUrl={modalUrl} closeModal={this.closeModal} />}
-      </div>
-    );
-  }
-}
+  return (
+    <div className={css.app}>
+      <Searchbar submit={handleSetSearchQuery} />
+      {images.length > 0 && (
+        <ImageGallery>
+          <ImageGalleryItem images={images} handleClick={handleImgClick} />
+        </ImageGallery>
+      )}
+      {error && <p>{error}</p>}
+      {isLoading && (
+        <Loader>
+          <RotatingLines
+            strokeColor="#3f51b5"
+            strokeWidth="5"
+            animationDuration="0.75"
+            width="96"
+            visible={true}
+          />
+        </Loader>
+      )}
+      {images.length > 0 && <Button handleClick={handleLoadBtnClick}></Button>}
+      {show && <Modal modalUrl={modalUrl} closeModal={closeModal} />}
+    </div>
+  );
+};
