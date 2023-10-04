@@ -1,34 +1,43 @@
-import { useEffect } from 'react';
+import { Component } from 'react';
 import css from './Modal.module.css';
 
-export const Modal = ({ modalUrl, closeModal }) => {
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyEsc);
-  }, []);
+export class Modal extends Component {
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyEsc);
+  }
 
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('keydown', handleKeyEsc);
-    };
-  }, []);
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyEsc);
+  }
 
-  const handleKeyEsc = event => {
+  handleKeyEsc = event => {
     if (event.code === 'Escape') {
-      closeModal();
+      this.props.closeModal();
     }
   };
 
-  const handleOverlayClick = event => {
+  handleOverlayClick = event => {
     if (event.target === event.currentTarget) {
-      closeModal();
+      this.props.closeModal();
     }
   };
 
-  return (
-    <div className={css.overlay} onClick={handleOverlayClick}>
-      <div className={css.modal}>
-        <img src={modalUrl} alt="" />
-      </div>
-    </div>
-  );
-};
+  render() {
+    return (
+      <>
+        <div className={css.overlay} onClick={this.handleOverlayClick}>
+          <div className={css.modal}>
+            <img src={this.props.modalUrl} alt="" />
+          </div>
+        </div>
+        {/* {this.props.images.map(({ id, largeImageURL, tags }) => (
+          <div className={css.overlay}>
+            <div className={css.modal}>
+              <img key={id} src={largeImageURL} alt={tags} />
+            </div>
+          </div>
+        ))} */}
+      </>
+    );
+  }
+}
