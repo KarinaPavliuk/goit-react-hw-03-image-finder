@@ -16,7 +16,7 @@ export class App extends Component {
     images: [],
     error: '',
     isLoading: false,
-    isShowImages: false,
+    // isShowImages: false,
     searchQuery: '',
     page: 1,
     show: false,
